@@ -124,6 +124,22 @@ Reader.prototype.countTotal = function(next) {
   });
 }
 
+Reader.prototype.lastRecord = function(next) {
+  // get last record with volume > 0
+  var query = this.db.query(`
+  SELECT * from ${postgresUtil.table('candles')} WHERE volume > 0 ORDER BY start desc LIMIT 1
+  `);
+  var rows = [];
+  query.on('row', function(row) {
+    rows.push(row);
+  });
+
+  query.on('end',function(){
+    var first = _.first(rows);
+    // return first;
+    next(first);
+  });
+}
 Reader.prototype.getBoundry = function(next) {
   var query = this.db.query(`
   SELECT (

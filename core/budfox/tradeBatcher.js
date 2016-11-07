@@ -1,6 +1,6 @@
-// 
+//
 // Small wrapper that only propogates new trades.
-// 
+//
 // Expects trade batches to be written like:
 // [
 //  {
@@ -16,7 +16,7 @@
 //    amount: x
 //  }
 // ]
-// 
+//
 // Emits 'new trades' event with:
 // {
 //   amount: x,
@@ -25,7 +25,7 @@
 //   first: (trade),
 //   last: (trade)
 //   data: [
-//      // batch of new trades with 
+//      // batch of new trades with
 //      // moments instead of timestamps
 //   ]
 // }
@@ -54,6 +54,9 @@ TradeBatcher.prototype.write = function(batch) {
   if(_.isEmpty(batch))
     return log.debug('Trade fetch came back empty.');
 
+  // tomih: get lag from batch
+  var lag = (batch.lag===undefined)?0:batch.lag;
+
   var filterBatch = this.filter(batch);
 
   var amount = _.size(filterBatch);
@@ -81,7 +84,8 @@ TradeBatcher.prototype.write = function(batch) {
     end: last.date,
     last: last,
     first: first,
-    data: momentBatch
+    data: momentBatch,
+    lag: lag
   });
 
   this.last = last[this.tid];

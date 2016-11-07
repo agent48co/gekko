@@ -9,6 +9,7 @@ var settings = {
 module.exports = {
   settings: settings,
   table: function(name) {
-    return [name, settings.pair.join('_')].join('_');
+    // change table name to exchange + type + pair
+    return [watch.exchange + '_' + name, settings.pair.join('_')].join('_');
   }
 }

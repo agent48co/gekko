@@ -28,6 +28,10 @@
 //       close: (float)
 //       volume: (float)
 //       vwp: (float) // volume weighted price
+//       trades: (integer) // no. of all trades
+//       volume_buy: (float) // volume of buy trades
+//       trades_buy: (integer) // no. of buy trades
+//       lag: (integer) // avg lag to exchange
 //    },
 //    {
 //       start: (moment), // + 1
@@ -38,6 +42,10 @@
 //      close: (float)
 //       volume: (float)
 //       vwp: (float) // volume weighted price
+//       trades: (integer) // no. of all trades
+//       volume_buy: (float) // volume of buy trades
+//       trades_buy: (integer) // no. of buy trades
+//       lag: (integer) // avg lag to exchange
 //    }
 //    // etc.
 // ]
@@ -56,6 +64,15 @@ var CandleCreator = function() {
 
   // This also holds the leftover between fetches
   this.buckets = {};
+
+  // last price to properly calculate buy / sell trades
+  // the first calculation is wrong
+  // TODO: fetch last known price from db
+  this.lastPrice = 0.0;
+  this.lastAction = ''; // sell
+
+  // tomih: add lag for exchanges
+  this.lag = 0;
 }
 
 util.makeEventEmitter(CandleCreator);
@@ -65,6 +82,11 @@ CandleCreator.prototype.write = function(batch) {
 
   if(_.isEmpty(trades))
     return;
+
+  // tomih: add lag
+  // this adds lag from last fetch per candle
+  // maybe avg it accross fetches?
+  this.lag = batch.lag;
 
   trades = this.filter(trades);
   this.fillBuckets(trades);
@@ -136,7 +158,11 @@ CandleCreator.prototype.calculateCandle = function(trades) {
     close: f(_.last(trades).price),
     vwp: 0,
     volume: 0,
-    trades: _.size(trades)
+    trades: _.size(trades),
+    volume_buy: 0,
+    trades_buy: 0,
+    lag: this.lag,
+    raw: ''
   };
 
   _.each(trades, function(trade) {
@@ -144,9 +170,22 @@ CandleCreator.prototype.calculateCandle = function(trades) {
     candle.low = _.min([candle.low, f(trade.price)]);
     candle.volume += f(trade.amount);
     candle.vwp += f(trade.price) * f(trade.amount);
+    // if this price is higher then the old one or the price is the same
+    // and the last action was BUY, we consider it as BUY trade
+    var isBuy = (this.lastPrice<trade.price || (this.lastPrice==trade.price && this.lastAction=='buy'));
+    if (isBuy)   {
+      candle.volume_buy += f(trade.amount);
+      candle.trades_buy += 1;
+      this.lastAction = 'buy';
+    } else
+      this.lastAction = '';
+
+    this.lastPrice = trade.price;
   });
 
   candle.vwp /= candle.volume;
+  // add all trades from this batch
+  candle.raw = trades;
 
   return candle;
 }
@@ -188,7 +227,11 @@ CandleCreator.prototype.addEmptyCandles = function(candles) {
       close: lastPrice,
       vwp: lastPrice,
       volume: 0,
-      trades: 0
+      trades: 0,
+      volume_buy: 0,
+      trades_buy: 0,
+      lag: this.lag,
+      raw: ''
     });
   }
   return candles;

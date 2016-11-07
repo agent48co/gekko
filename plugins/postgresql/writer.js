@@ -13,6 +13,11 @@ var Store = function(done, pluginMeta) {
 
   this.cache = [];
 }
+// tomih: added:
+// volume_buy - volume of buy orders
+// trades_buy - no. of buy trades
+// lag - avg lag in ms to connect to exchange
+// raw - raw trades included in 1m candle
 
 Store.prototype.upsertTables = function() {
   var createQueries = [
@@ -26,7 +31,11 @@ Store.prototype.upsertTables = function() {
       close double precision NOT NULL,
       vwp double precision NOT NULL,
       volume double precision NOT NULL,
-      trades INTEGER NOT NULL
+      trades INTEGER NOT NULL,
+      volume_buy double precision NOT NULL,
+      trades_buy INTEGER NOT NULL,
+      lag INTEGER NOT NULL,
+      raw jsonb
     );`
   ];
 
@@ -42,10 +51,11 @@ Store.prototype.writeCandles = function() {
     return;
   }
 
+// tomih: added volume_buy, trades_buy, lag columns
   var stmt = `
   INSERT INTO ${postgresUtil.table('candles')}
-  (start, open, high,low, close, vwp, volume, trades)
-  values($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO NOTHING;
+  (start, open, high,low, close, vwp, volume, trades, volume_buy, trades_buy, lag, raw)
+  values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::JSON) ON CONFLICT DO NOTHING;
   `;
 
   _.each(this.cache, candle => {
@@ -57,7 +67,11 @@ Store.prototype.writeCandles = function() {
       candle.close,
       candle.vwp,
       candle.volume,
-      candle.trades
+      candle.trades,
+      candle.volume_buy,
+      candle.trades_buy,
+      parseInt(candle.lag),
+      JSON.stringify(candle.raw)
     ]);
   });
 
