@@ -26,8 +26,11 @@ var plugins = require(util.dirs().gekko + 'plugins');
 
 var version = adapter.version;
 
-var dbName = config.watch.exchange.toLowerCase();
-
+// change db name to gekko or config.adapters.postgresql.database
+// we will differentiate exchanges via name eg. exchange_candles_pair
+var tbName = config.watch.exchange.toLowerCase();
+//var dbName = config.watch.exchange.toLowerCase();
+var dbName = (!config.adapters.postgresql.database)?'gekko':config.adapters.postgresql.database;
 var mode = util.gekkoMode();
 
 var connectionString = config.adapters.postgresql.connectionString+"/postgres";
@@ -61,7 +64,7 @@ checkClient.connect(function(err){
           }
         });
       }else if(mode === 'backtest') {
-        util.die(`History database does not exist for exchange ${config.watch.exchange}.`);
+        util.die(`History table does not exist for exchange ${config.watch.exchange}.`);
       }
     }else{ //database exists
       log.debug("Database exists: "+dbName);

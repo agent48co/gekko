@@ -271,7 +271,7 @@ config.pushbullet = {
     // Send 'Gekko starting' message if true
   sendMessageOnStart: true,
     // disable advice printout if it's soft
-  muteSoft: true, 
+  muteSoft: true,
     // your pushbullet API key
   key: 'xxx',
     // your email, change it unless you are Azor Ahai
@@ -354,6 +354,7 @@ config.adapters = {
     path: 'plugins/postgresql',
     version: 0.1,
     connectionString: 'postgres://user:pass@localhost:5432', // if default port
+    database: 'gekko', // database name. default: gekko
     dependencies: [{
       module: 'pg',
       version: '6.1.0'
