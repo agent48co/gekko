@@ -13,13 +13,21 @@ var Actor = function(done) {
   _.bindAll(this);
 
   this.done = done;
+  this.candle = {};
+//  this.batchers = {};
 
-  this.batcher = new CandleBatcher(config.tradingAdvisor.candleSize);
+  // create batcher for each timeframe in config
+  this.timeframes = config.tradingAdvisor.timeframes;
+  _.each(this.timeframes, function(timeframe, key) {
+    this.timeframes[key].batcher = new CandleBatcher(timeframe);
+  }, this);
+
 
   this.setupTradingMethod();
 
   var mode = util.gekkoMode();
 
+// TODO: fix realtime stitcher for multitimeframe candles
   if(mode === 'realtime') {
     var Stitcher = require(dirs.core + 'dataStitcher');
     var stitcher = new Stitcher(this.batcher);
@@ -51,21 +59,30 @@ Actor.prototype.setupTradingMethod = function() {
   this.method = new Consultant;
   this.method
     .on('advice', this.relayAdvice);
+    // listen to all propagated candles
+    _.each(this.timeframes, function(timeframe, key) {
+      this.timeframes[key].batcher
+        .on('candle_'+key, this.processCustomCandle)
+    }, this);
 
-  this.batcher
-    .on('candle', this.processCustomCandle)
+
 }
 
 // HANDLERS
 // process the 1m candles
 Actor.prototype.processCandle = function(candle, done) {
-  this.batcher.write([candle]);
+  this.candle = candle;
+  // write candle to each timeframe
+  _.each(this.timeframes, function(timeframe, key) {
+    this.timeframes[key].batcher.write([candle], key);
+  }, this);
+
   done();
 }
 
 // propogate a custom sized candle to the trading method
-Actor.prototype.processCustomCandle = function(candle) {
-  this.method.tick(candle);
+Actor.prototype.processCustomCandle = function(candle, tf) {
+    this.method.tick(candle, tf); // process custom candle size
 }
 
 // pass through shutdown handler

@@ -105,8 +105,8 @@ Logger.prototype.processCandle = function(candle, done) {
     this.dates.start = candle.start;
     this.startPrice = candle.open;
   }
-
-  this.dates.end = candle.start.clone().add(1, 'm');
+  // this.dates.end = candle.start.clone().add(1, 'm');
+  this.dates.end = candle.start;
   this.endPrice = candle.close;
 
   this.price = candle.close;
