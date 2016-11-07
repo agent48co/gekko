@@ -22,9 +22,10 @@ Heart.prototype.tick = function() {
 }
 
 Heart.prototype.determineLiveTickRate = function() {
-  // TODO: fix
-  if(util.getConfig().watch.exchange === 'okcoin')
-    var seconds = 2;
+
+  // configurable refreshRate. config.watch.refreshRate
+  if(_.isNumber(util.getConfig().watch.refreshRate))
+    var seconds = util.getConfig().watch.refreshRate;
   else
     var seconds = 20;
 

@@ -19,7 +19,8 @@ config.watch = {
   // see https://github.com/askmike/gekko#supported-exchanges
   exchange: 'Bitstamp',
   currency: 'USD',
-  asset: 'BTC'
+  asset: 'BTC',
+  refreshRate: 2 // fetch refresh rate in secconds. Default 20 sec
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
