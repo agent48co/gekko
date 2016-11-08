@@ -157,84 +157,81 @@ util.makeEventEmitter(Base);
 Base.prototype.tick = function(candle, tf) {
 
   this.timeframes[tf].age++;
-  this.timeframes[tf].candle = candle;
 
 
-  // store candle history
-  // TODO: add additional fields like trades, vwp, ...
-  this.timeframes[tf].history.start.push(candle.start);
-  this.timeframes[tf].history.open.push(candle.open);
-  this.timeframes[tf].history.high.push(candle.high);
-  this.timeframes[tf].history.low.push(candle.low);
-  this.timeframes[tf].history.close.push(candle.close);
-  this.timeframes[tf].history.vwp.push(candle.vwp);
-  this.timeframes[tf].history.volume.push(candle.volume);
-  this.timeframes[tf].history.volume_buy.push(candle.volume_buy);
-  this.timeframes[tf].history.trades.push(candle.trades);
-  this.timeframes[tf].history.trades_buy.push(candle.trades_buy);
+    var basectx = this;
 
-  var basectx = this;
+    var p = new Promise(function(resolve, reject) {
+      // setTimeout(function(candle) {
 
-  // clean cache
-  if(this.timeframes[tf].age > this.timeframes[tf].historySize) {
-    _.each(this.timeframes[tf].history, function(item, key) {
-        basectx.timeframes[tf].history[key].shift();
-    })
-  }
+        this.timeframes[tf].candle = candle;
+        // store candle history
+        this.timeframes[tf].history.start.push(candle.start);
+        this.timeframes[tf].history.open.push(candle.open);
+        this.timeframes[tf].history.high.push(candle.high);
+        this.timeframes[tf].history.low.push(candle.low);
+        this.timeframes[tf].history.close.push(candle.close);
+        this.timeframes[tf].history.vwp.push(candle.vwp);
+        this.timeframes[tf].history.volume.push(candle.volume);
+        this.timeframes[tf].history.volume_buy.push(candle.volume_buy);
+        this.timeframes[tf].history.trades.push(candle.trades);
+        this.timeframes[tf].history.trades_buy.push(candle.trades_buy);
+
+        // var basectx = this;
+
+        // clean cache
+        if(this.timeframes[tf].age > this.timeframes[tf].historySize) {
+          _.each(this.timeframes[tf].history, function(item, key) {
+              basectx.timeframes[tf].history[key].shift();
+          })
+        }
 
 
-  // update all indicators
-  var price = candle[this.timeframes[tf].priceValue];
-  _.each(this.timeframes[tf].indicators, function(i, key) {
-    if(i.input === 'price')
-      i.update(price);
-    if(i.input === 'candle')
-      i.update(candle);
-    basectx.timeframes[tf].history[key].push(i);
-  });
+        // update all indicators
+        var price = candle[this.timeframes[tf].priceValue];
+        _.each(this.timeframes[tf].indicators, function(i, key) {
+          if(i.input === 'price')
+            i.update(price);
+          if(i.input === 'candle')
+            i.update(candle);
+          basectx.timeframes[tf].history[key].push(i);
+        });
+        resolve();
+      // }.bind(this), 0, candle);
 
-  // update the trading method
-  // first fill the history. we don't need to start calculating async indicators before that
-  // if we are in synchronous mode just go to processSyncIndicators
-    if(!this.asyncTick  || this.timeframes[tf].requiredHistory > this.timeframes[tf].age) {
-          this.propogateTick(tf, candle);
-    } else {
-      // wait for all async indicators to finish before processing
-      var next = _.after(
-        _.size(this.timeframes[tf].talibIndicators),
-      _.partial(this.propogateTick, tf, candle) // appends tf parameter to propagatetick function
+    }.bind(this));
+
+    p.then(function() {
+
+        // handle result from talib
+        var talibResultHander = function(err, result) {
+          if(err)
+            util.die('TALIB ERROR:', err);
+
+          // fn is bound to indicator
+          this.result = _.mapValues(result, v => _.last(v));
+
+
+          // next();
+        }
+
+        // handle result from talib
+        _.each(
+          this.timeframes[tf].talibIndicators,
+          indicator => indicator.run(
+            basectx.timeframes[tf].history,
+            talibResultHander.bind(indicator)
+          )
+        );
+      }.bind(this)
     );
 
-
-    // handle result from talib
-    var talibResultHander = function(err, result) {
-      if(err)
-        util.die('TALIB ERROR:', err);
-
-      // fn is bound to indicator
-      this.result = _.mapValues(result, v => _.last(v));
-
-
-      next();
-    }
-
-    // handle result from talib
-    _.each(
-      this.timeframes[tf].talibIndicators,
-      indicator => indicator.run(
-        basectx.timeframes[tf].history,
-        talibResultHander.bind(indicator)
-      )
-    );
-  }
-
+    p.then(function() {
+      this.propogateTick(tf);
+    }.bind(this))
 
 }
 
-// process synchronous indicators (only after all async ones have results)
-// Base.prototype.processSyncIndicators = function(tf, candle) {
-//
-// }
 
 // propogate tick to the strategy (method)
 Base.prototype.propogateTick = function(tf) {

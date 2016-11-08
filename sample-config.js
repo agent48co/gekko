@@ -29,13 +29,55 @@ config.watch = {
 
 config.tradingAdvisor = {
   enabled: true,
-  method: 'MACD',
-  candleSize: 60,
-  historySize: 25,
+  method: 'test',
+  // candleSize: 60,
+  // historySize: 25,
+  timeframes: {
+      // tf1: {
+      //   tf: 1,
+      //   requiredHistory: 25
+      // },
+      tf5: {
+        tf: 5,
+        requiredHistory: 25
+      },
+      tf15: {
+        tf: 15,
+        requiredHistory: 25
+      },
+      // tf60: {
+      //   tf: 60,
+      //   requiredHistory: 25
+      // }
+  },
   adapter: 'sqlite',
   talib: {
     enabled: false,
     version: '1.0.2'
+  }
+}
+config.test = {
+  // MACD settings:
+  macd: {
+    // EMA weight (α)
+    // the higher the weight, the more smooth (and delayed) the line
+    short: 10,
+    long: 21,
+    signal: 9,
+
+  },
+  talibmacd: {
+      optInFastPeriod: 10,
+      optInSlowPeriod: 21,
+      optInSignalPeriod: 9
+  },
+  // the difference between the EMAs (to act as triggers)
+  thresholds: {
+    down: -0.025,
+    up: 0.025,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 1
   }
 }
 
