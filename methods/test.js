@@ -9,6 +9,7 @@
 // long or short).
 var _ = require('lodash');
 var log = require('../core/log.js');
+var util = require('../core/util.js');
 
 var config = require('../core/util.js').getConfig();
 var settings = config.test;
@@ -58,19 +59,10 @@ method.log = function(timeframes, tf) {
   var diff = macd.diff;
   var signal = macd.signal.result;
 
-  // if (tf=='tf60')
-  _.each(history, function(item, key) {
-    log.debug(key, _.size(item));
-  })
-  // log.debug('tf', tf);
-  // log.debug('macd ', signal);
-  // log.debug('talib', talibmacd.result.outMACDSignal);
-  // log.debug('calculated MACD properties for candle:');
-  // log.debug('\t', 'short:', macd.short.result.toFixed(digits));
-  // log.debug('\t', 'long:', macd.long.result.toFixed(digits));
-  // log.debug('\t', 'macd:', diff.toFixed(digits));
-  // log.debug('\t', 'signal:', signal.toFixed(digits));
-  // log.debug('\t', 'macdiff:', macd.result.toFixed(digits));
+  log.debug(timeframes[tf].age, timeframes[tf].processedTicks);
+  log.debug('macd   ', signal);
+  log.debug('macd h ', _.last(history.macd).signal.result);
+  log.debug('tamacd ',  talibmacd.result.outMACDSignal);
 }
 
 // Based on the newly calculated

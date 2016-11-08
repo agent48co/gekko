@@ -30,8 +30,26 @@ config.watch = {
 config.tradingAdvisor = {
   enabled: true,
   method: 'MACD',
-  candleSize: 60,
-  historySize: 25,
+  // candleSize: 60,
+  // historySize: 25,
+  timeframes: {
+      // tf1: {
+      //   tf: 1,
+      //   requiredHistory: 25
+      // },
+      tf5: {
+        tf: 5,
+        requiredHistory: 25
+      },
+      // tf15: {
+      //   tf: 15,
+      //   requiredHistory: 25
+      // },
+      // tf60: {
+      //   tf: 60,
+      //   requiredHistory: 25
+      // }
+  },
   adapter: 'sqlite',
   talib: {
     enabled: false,
