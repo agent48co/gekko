@@ -8,7 +8,6 @@
 
 const log = require('../core/log');
 const config = require ('../core/util').getConfig();
-const DependenciesManager = require('../web/state/dependencyManager');
 const TradingView = require('./tools/tradingView');
 const CandleBatcher = require('../core/candleBatcher');
 
