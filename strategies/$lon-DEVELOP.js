@@ -7,6 +7,7 @@
 
 
 const CandleBatcher = require('../core/candleBatcher');
+const DependenciesManager = require('../plugins/dependencyManager/web');
 
 let strat = {};
 
@@ -34,6 +35,9 @@ strat.init = function(options = {}) {
     if(this.debug) {
       this.consoleLog(`strat update:: candle.start: ${ JSON.stringify(candle.start) }, advised: ${ this.advised }, tradeInitiated: ${ this.tradeInitiated }`);
     }
+
+    // test deps:
+    res = DependenciesManager.getClosestResult(candle.start, this.config.dependencyResults.results);
   };
 
   this.check = function(candle) {
