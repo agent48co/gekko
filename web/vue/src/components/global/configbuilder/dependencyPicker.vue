@@ -60,21 +60,37 @@ export default {
 }
 const defTxt = ``;
 /*const defTxt = `
-[{
-   "tradingAdvisor": {
-     "enabled": true,
-     "method": "$lon-ATR-ADX-Trend-Dep",
-     "candleSize": 120,
-     "historySize": 140
-   },
-   "watch":{
-      "exchange":"binance",
-      "currency":"USDT",
-      "asset":"BTC"
-   },
-  "$lon-ATR-ADX-Trend-Dep": { "CANDLE_NUMBER": 1, "USE_HEIKEN": true },
-  "type": "paper trader"
-}]
+[
+   {
+      "tradingAdvisor":{
+         "enabled":true,
+         "method":"$lon-turtles",
+         "candleSize":1440,
+         "historySize":39
+      },
+      "watch":{
+         "exchange":"binance",
+         "currency":"USDT",
+         "asset":"BTC"
+      },
+      "$lon-turtles":{
+         "atrPeriod":39,
+         "atrStop":20,
+         "enterFast":20,
+         "enterSlow":55,
+         "exitFast":10,
+         "exitSlow":20,
+         "hiekenAshi":false,
+         "useAtrStop":true,
+         "useTrailingAtrStop":true,
+         "margin":{
+            "isPersistent":false,
+            "useShort":true
+         }
+      },
+      "type":"paper trader"
+   }
+]
 `*/
 </script>
 <style>
