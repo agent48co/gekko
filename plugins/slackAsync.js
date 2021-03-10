@@ -48,7 +48,12 @@ SlackAsync.prototype.setupWebApi = function() {
         attachments, [], text, {
           id: gekkoNameShort
         });
-      this.send(body, gekkoNameHash);
+      try {
+        this.send(body, gekkoNameHash);
+      } catch(eeee){
+        debugger;
+        console.error(eeee);
+      }
     } else {
       log.debug('Skipping Send message on startup');
     }
@@ -464,18 +469,27 @@ SlackAsync.prototype.sendGekkoEvent = function(content, object) {
 
     content['channel'] = slackConfig.channel;
 
-    const res = this.slack.chat.postMessage(content);
-    res.then((res1) => {
+    try {
+      const res1 = await this.slack.chat.postMessage(content);
+      // res.then((res1) => {
       let msgObj = {
         ts: res1.ts
       }
-      if(id){
+      if (id) {
         msgObj['gekkoId'] = parentHash;
         msgObj['object'] = object;
         messagesHash[id] = msgObj;
       }
-    });
-
+      /*}).catch((err, a, b) => {
+        debugger;
+        console.error(err);
+      }).finally((a,b,c)=>{
+        debugger;
+      });*/
+    } catch (err1) {
+      debugger;
+      console.error(err1);
+    }
     // same for response ( to show as replies of the corresponding 'Gekko Started' message)
     if(messagesHash[ parentHash ]){
       content['thread_ts'] = messagesHash[ parentHash ].ts;
@@ -489,16 +503,21 @@ SlackAsync.prototype.sendGekkoEvent = function(content, object) {
 SlackAsync.prototype.send = function(content, id) {
   (async () => {
     content['channel'] = slackConfig.channel;
-    const res = this.slack.chat.postMessage(content);
-    res.then((res1) => {
+    try {
+      const res = await this.slack.chat.postMessage(content);
+      //res.then((res1) => {
       // console.log('Message sent: ', res1);
       let msgObj = {
-        ts: res1.ts
+        ts: res.ts
       }
-      if(id){
+      if (id) {
         messagesHash[id] = msgObj;
       }
-    });
+      //});
+    } catch (err1) {
+      debugger;
+      console.error(err1);
+    }
   })();
 };
 
