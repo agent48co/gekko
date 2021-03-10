@@ -140,6 +140,7 @@ export default {
             icon: 'error',
           });
         } else {
+          window.response = response; // very temp!!
           this.backtestResult = response;
         }
       });

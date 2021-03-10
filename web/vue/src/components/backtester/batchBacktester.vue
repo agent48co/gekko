@@ -130,6 +130,7 @@ export default {
       this.backtestState = 'fetching';
 
       post('batchBacktest', this.config, (error, response) => {
+        window.response = response;
         this.backtestState = 'fetched';
 
         if (error || !response || response.error) {
@@ -141,7 +142,9 @@ export default {
           });
         } else {
           this.backtestResults = response;
+          window.backtestResults= response.backtests; // very temp!
           this.backtestResult = getResultFromBatch(response.backtests, response.performanceReport);
+          window.backtestResult = this.backtestResult; // very temp!
         }
       });
     },
