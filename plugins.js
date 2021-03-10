@@ -244,13 +244,13 @@ var plugins = [
     // modes: ['realtime', 'backtest'], // remove backtest in prod!
     dependencies: [{
       module: '@slack/web-api',
-      version: '^5.0.1'
+      version: '^6.0.0'
     }, {
       module: '@slack/events-api',
-      version: '^2.2.0'
+      version: '^3.0.0'
     }, {
       module: '@slack/rtm-api',
-      version: '^5.0.1'
+      version: '^6.0.0'
     }]
   },
   {
