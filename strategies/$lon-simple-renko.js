@@ -14,7 +14,7 @@ let strat = {};
 // seal everything into init to have the ability to use local variables unique for each strat instance
 // , instead of using 'this.someVar', to optimize performance:
 strat.init = function(options = {}) {
-  let startPrice, currentCandle, prevCandle, currentPrice = 0.0, buyPrice = 0.0, advised = false, tradeInitiated = false, buyTs, tradesCount = 0, tradesMaxCount = 0;
+  let startPrice, currentCandle, prevCandle, currentPrice = 0.0, buyPrice = 0.0, advised = false, advisedShort = false, tradeInitiated = false, buyTs, tradesCount = 0, tradesMaxCount = 0;
   let tradesArr = [];
   let UNDERVALUE = this.settings.UNDERVALUE || 0.94, THRESHOLD = this.settings.THRESHOLD, TAKE_PROFIT = this.settings.TAKE_PROFIT || 1.05,
     TIMEOUT_MINUTES = this.settings.TIMEOUT_MINUTES || 1440, TRAILING_STOP = this.settings.trailingStop || 5;
@@ -68,12 +68,27 @@ strat.init = function(options = {}) {
     if(curRenko.isChanged && curRenko.direction === 'up' && !advised) {
       this.buy('renko direction change to UP', { limitPrice: curRenko.renkoClose })
     }
-    if(curRenko.isChanged && curRenko.direction === 'dn' && advised) {
+    /*if(curRenko.isChanged && curRenko.direction === 'dn' && advised) {
       consoleLog(`currenko change dn!!: ${ JSON.stringify(curRenko)}`)
-    }
+    }*/
     // if(prevRenko.isChanged && prevRenko.direction === 'dn' && curRenko.direction === 'dn' && advised) {
     if(curRenko.isChanged && curRenko.direction === 'dn' && advised) {
       this.sell('renko direction change to DN', { limitPrice: curRenko.renkoClose })
+    }
+    // shorts:
+    if(this.settings.margin && this.settings.margin.useShort) {
+      if (curRenko.isChanged && curRenko.direction === 'dn' && !advisedShort) {
+        this.buy('renko direction change to UP', { limitPrice: curRenko.renkoClose, margin: { type: 'short', limit: 1 } })
+      }
+      if (advisedShort) {
+        /*if (curRenko.isChanged && curRenko.direction === 'up') {
+          consoleLog(`currenko change dn!!: ${JSON.stringify(curRenko)}`)
+        }*/
+        // if(prevRenko.isChanged && prevRenko.direction === 'dn' && curRenko.direction === 'dn' && advised) {
+        if (curRenko.isChanged && curRenko.direction === 'up') {
+          this.sell('renko direction change to DN', { limitPrice: curRenko.renkoClose, margin: { type: 'short', limit: 1 } })
+        }
+      }
     }
     prevRenko = Object.assign({}, curRenko);
   }
@@ -83,10 +98,11 @@ strat.init = function(options = {}) {
       type: 'buy advice',
       reason: reason,
     });
-    consoleLog('buy:: advice: long');
+    consoleLog(`buy:: advice: long, margin: ${ !!options.margin }`);
     this.advice({
       limit: options.limitPrice,
       direction: 'long',
+      margin: options.margin,
       trigger: {
         type: 'trailingStop',
         trailPercentage: TRAILING_STOP
@@ -95,7 +111,11 @@ strat.init = function(options = {}) {
 
     buyTs = this.candle.start;
     buyPrice = currentPrice;
-    advised = true;
+    if(options.margin && options.margin.type === 'short') {
+      advisedShort = true;
+    } else {
+      advised = true;
+    }
     if(!hadDeal) {
       hadDeal = true; // only set once: strange startAt.unix() bug
     }
@@ -105,12 +125,17 @@ strat.init = function(options = {}) {
       type: 'sell advice',
       reason: reason,
     });
-    consoleLog('sell:: advice: short');
+    consoleLog(`sell:: advice: short, margin: ${ !!options.margin }`);
     this.advice({
       direction: 'short',
       limit: options.limitPrice,
+      margin: options.margin
     });
-    advised = false;
+    if(options.margin && options.margin.type === 'short') {
+      advisedShort = false;
+    } else {
+      advised = false;
+    }
   }
 
   this.onPendingTrade = function(pendingTrade) {
