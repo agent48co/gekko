@@ -36,7 +36,8 @@ config.childToParent = {
 }
 
 // ASYNC STRATEGIES:
-config.asyncStrategies = [ '$lon-DEVELOP', '$lon-IAmRich-1', '$lon-IAmRich-2', '$lon-IAmRich-21', '$lon-turtles',
+config.asyncStrategies = [ '$lon-DEVELOP', '$lon-IAmRich-1', '$lon-IAmRich-2', '$lon-IAmRich-21',
+  '$lon-turtles', '$lon-turtles-psycho', '$lon-turtles_deps',
   '$lon-krown-cave', '$lon-krown-cave-1.1', '$lon-krown-cave-1.2', '$lon-SuperStasAsync-1', '$lon-backfire-vial',
   '$lon-aaat-stats'
 ]; // TEMP! todo: move to config.js, when tested.
@@ -68,7 +69,7 @@ config.postgresql = {
   schema: 'public',
   dependencies: [{
     module: 'pg',
-    version: '7.4.3'
+    version: '8.5.1'
   }]
 }
 
