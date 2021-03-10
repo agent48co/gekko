@@ -166,9 +166,9 @@ function getBatchBacktestReport(backtests) {
 const monthlySpans = function(warmupMinutes) {
   return [
     // 2017yr
-    /*{ from: moment('2017-09-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2017-10-21T00:00:00Z' },
+    { from: moment('2017-09-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2017-10-21T00:00:00Z' },
     { from: moment('2017-10-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2017-11-21T00:00:00Z' },
-    { from: moment('2017-11-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2017-12-21T00:00:00Z' },*/
+    { from: moment('2017-11-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2017-12-21T00:00:00Z' },
     // 2018yr
     { from: moment('2017-12-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2018-01-21T00:00:00Z' },
     { from: moment('2018-01-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2018-02-21T00:00:00Z' },
@@ -209,17 +209,16 @@ const monthlySpans = function(warmupMinutes) {
     { from: moment('2020-10-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2020-11-21T00:00:00Z' },
     { from: moment('2020-11-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2020-12-21T00:00:00Z' },
     // 2021 yr
-    // { from: moment('2020-12-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2021-01-21T00:00:00Z' },
-
+    { from: moment('2020-12-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2021-01-21T00:00:00Z' },
+    { from: moment('2021-01-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2021-02-21T00:00:00Z' },
+    //{ from: moment('2021-02-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2021-03-21T00:00:00Z' },
   ];
 }
 
 const quarterlySpans = function(warmupMinutes) {
   return [
     // 2017yr
-    /*{ from: moment('2017-09-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2017-10-21T00:00:00Z' },
-    { from: moment('2017-10-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2017-11-21T00:00:00Z' },
-    { from: moment('2017-11-21T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2017-12-21T00:00:00Z' },*/
+    { from: moment('2017-10-01T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2018-01-01T00:00:00Z' },
     // 2018yr
     { from: moment('2018-01-01T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2018-04-01T00:00:00Z' },
     { from: moment('2018-04-01T00:00:00Z').subtract(warmupMinutes, 'minutes').toDate(), to: '2018-07-01T00:00:00Z' },
